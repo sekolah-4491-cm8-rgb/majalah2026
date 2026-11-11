@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-MAJALAH SMK BAKAR ARANG</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #FFA447;
+            min-height: 100vh;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .card-bg {
+            background-color: #E2E8F0;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-gray-800 select-none">
+
+    <!-- HEADER -->
+    <header class="w-full bg-gradient-to-r from-amber-400 to-orange-400 px-6 py-4 flex justify-between items-center shadow-md">
+        <div class="flex items-center space-x-3">
+            <span class="font-bold text-2xl tracking-wider text-gray-900">E - MAJALAH</span>
+            <span class="text-xs font-bold bg-white/40 text-gray-900 px-3 py-1 rounded-full uppercase tracking-wider">Database</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2 bg-white/70 px-3 py-1 rounded-full border border-white">
+                <i class="fa-solid fa-graduation-cap text-orange-600"></i>
+                <span class="font-bold text-sm text-gray-900">SMK BAKAR ARANG</span>
+            </div>
+            <button id="logoutBtn" onclick="handleLogout()" class="hidden flex items-center space-x-1.5 font-bold text-sm bg-red-500 text-white px-3.5 py-1.5 rounded-full hover:bg-red-600 transition shadow">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- CONTAINER UTAMA -->
+    <main class="flex-grow flex items-center justify-center p-4">
+
+        <!-- 1. SKRIN LOG MASUK / DAFTAR -->
+        <section id="loginScreen" class="w-full max-w-md card-bg rounded-3xl p-8 flex flex-col items-center relative my-auto shadow-2xl">
+            <!-- Icon User Top -->
+            <div class="w-20 h-20 bg-gray-900 rounded-full flex items-center justify-center -mt-16 mb-4 border-4 border-white shadow-lg">
+                <i class="fa-solid fa-user text-white text-3xl"></i>
+            </div>
+            
+            <!-- Tab Tukar Mod (Pelajar / Admin) -->
+            <div class="flex bg-gray-300 p-1 rounded-xl w-full mb-4 text-center">
+                <button id="tabUser" onclick="switchLoginMode('user')" class="w-1/2 py-2 font-bold text-sm rounded-lg bg-white text-gray-900 shadow">PELAJAR</button>
+                <button id="tabAdmin" onclick="switchLoginMode('admin')" class="w-1/2 py-2 font-bold text-sm rounded-lg text-gray-600 hover:text-gray-900">ADMIN</button>
+            </div>
+
+            <!-- Toggle Log Masuk vs Daftar (Pelajar Sahaja) -->
+            <div id="studentAuthToggle" class="flex justify-center items-center space-x-3 mb-4 text-sm font-semibold">
+                <button type="button" id="subTabLogin" onclick="switchAuthSubMode('login')" class="text-orange-600 underline">Log Masuk</button>
+                <span class="text-gray-400">•</span>
+                <button type="button" id="subTabRegister" onclick="switchAuthSubMode('register')" class="text-gray-600 hover:text-orange-600">Daftar Akaun Baru</button>
+            </div>
+
+            <!-- Tajuk -->
+            <h2 id="loginTitle" class="font-bold text-2xl text-gray-900 mb-6 uppercase text-center">LOG MASUK PELAJAR</h2>
+
+            <!-- Form -->
+            <form onsubmit="handleAuthSubmit(event)" class="w-full flex flex-col space-y-4">
+                <!-- Input Emel / Username -->
+                <div class="relative flex items-center">
+                    <div class="absolute left-2 bg-gray-900 text-white w-10 h-10 rounded-full flex items-center justify-center">
+                        <i id="inputIcon" class="fa-solid fa-envelope"></i>
+                    </div>
+                    <input type="text" id="usernameInput" placeholder="m-12345678@moe-dl.edu.my" required
+                        class="w-full pl-14 pr-4 py-3 bg-white text-gray-900 font-medium rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-inner">
+                </div>
+
+                <!-- Input Kata Laluan -->
+                <div class="relative flex items-center">
+                    <div class="absolute left-2 bg-gray-900 text-white w-10 h-10 rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <input type="password" id="passwordInput" placeholder="••••••••••••" required
+                        class="w-full pl-14 pr-4 py-3 bg-white text-gray-900 font-medium rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-inner">
+                </div>
+
+                <!-- Input Confirm Password (Semasa Register) -->
+                <div id="confirmPasswordGroup" class="relative flex items-center hidden">
+                    <div class="absolute left-2 bg-gray-900 text-white w-10 h-10 rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <input type="password" id="confirmPasswordInput" placeholder="Pengesahan Kata Laluan"
+                        class="w-full pl-14 pr-4 py-3 bg-white text-gray-900 font-medium rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-inner">
+                </div>
+
+                <!-- Butang Masuk / Daftar -->
+                <button type="submit" id="authSubmitBtn" 
+                    class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-full shadow-lg transition active:scale-95 mt-2 uppercase tracking-wide">
+                    LOG MASUK
+                </button>
+            </form>
+
+            <!-- Mesej Notifikasi -->
+            <div id="loginMessage" class="mt-4 text-center text-sm font-bold hidden"></div>
+        </section>
+
+        <!-- 2. SKRIN PELAJAR - SUDAH BAYAR -->
+        <section id="userSuccessScreen" class="w-full max-w-3xl flex flex-col items-center hidden">
+            <!-- Welcome Heading -->
+            <div class="w-full text-left mb-6">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-wide">Welcome</h1>
+                <h2 id="userNameDisplay" class="text-2xl md:text-4xl font-bold text-gray-900 mt-1">
+                    -
+                </h2>
+            </div>
+
+            <!-- Cover Buku & Nama Buku -->
+            <div class="flex flex-col items-center justify-center my-4">
+                <div onclick="openReaderScreen()" class="bg-white rounded-2xl p-4 shadow-2xl flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition transform w-60 h-80 text-center border-2 border-white">
+                    <img id="bookCoverImg" src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80" alt="Cover" class="w-full h-56 object-cover rounded-xl mb-3">
+                    <span id="bookCoverText" class="text-gray-500 text-xs font-semibold">(e - book)</span>
+                </div>
+                <h3 id="bookNameDisplay" class="text-2xl font-bold text-gray-900 mt-4 tracking-wide text-center">
+                    (name book)
+                </h3>
+            </div>
+        </section>
+
+        <!-- 3. SKRIN PELAJAR - BELUM BAYAR -->
+        <section id="userUnpaidScreen" class="w-full max-w-3xl flex flex-col items-center hidden">
+            <div class="w-full bg-red-600 rounded-2xl py-8 px-6 text-center text-white shadow-xl mb-8">
+                <h1 class="font-extrabold text-4xl md:text-6xl tracking-wide uppercase">You Not Paid</h1>
+                <p class="text-xl md:text-2xl mt-2 font-medium">ask your class teacher</p>
+            </div>
+
+            <div class="flex flex-col items-center justify-center">
+                <div class="bg-white/80 rounded-2xl p-4 shadow-lg flex flex-col items-center justify-center w-56 h-72 text-center relative opacity-80">
+                    <div class="absolute inset-0 bg-black/50 rounded-2xl flex flex-col items-center justify-center text-white">
+                        <i class="fa-solid fa-lock text-4xl mb-2 text-red-400"></i>
+                        <span class="font-bold text-sm uppercase">Akses Terkunci</span>
+                    </div>
+                    <span class="text-gray-400 text-xs">(e - book)</span>
+                </div>
+                <h3 id="unpaidBookName" class="text-2xl font-bold text-gray-900 mt-4 tracking-wide text-center">
+                    (name book)
+                </h3>
+            </div>
+        </section>
+
+        <!-- 4. SKRIN READER (HEYZINE) -->
+        <section id="readerScreen" class="w-full h-full flex flex-col items-center hidden">
+            <div class="w-full flex justify-between items-center mb-4">
+                <button onclick="backToUserHome()" class="flex items-center space-x-2 bg-white text-gray-900 font-bold px-4 py-2 rounded-full shadow hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Kembali</span>
+                </button>
+                <span id="readingBookTitle" class="font-bold text-xl text-gray-900">E-Majalah SMK Bakar Arang</span>
+            </div>
+
+            <div class="w-full bg-white rounded-2xl p-2 shadow-2xl flex-grow h-[75vh] flex items-center justify-center overflow-hidden">
+                <iframe id="heyzineFrame" src="" class="w-full h-full rounded-xl border-0" allowfullscreen></iframe>
+                <div id="readerPlaceholder" class="text-center p-6 hidden">
+                    <i class="fa-solid fa-book-open text-5xl text-orange-500 mb-3"></i>
+                    <p class="text-gray-800 font-bold text-lg">(link heyzine)</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. SKRIN ADMIN -->
+        <section id="adminScreen" class="w-full max-w-4xl flex flex-col items-start hidden">
+            <div class="w-full text-left mb-6">
+                <h1 class="text-4xl font-extrabold text-white">Welcome back</h1>
+                <h2 id="adminNameDisplay" class="text-3xl font-bold text-gray-900 mt-1">Administrator</h2>
+            </div>
+
+            <!-- Form Add Book -->
+            <div class="w-full card-bg rounded-3xl p-6 md:p-8 shadow-xl mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                    <span class="text-3xl mr-2 text-orange-600 font-extrabold">+</span> Add book
+                </h3>
+
+                <form onsubmit="handleAddBook(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-gray-900 mb-2">link heyzine :</label>
+                        <input type="url" id="inputHeyzineLink" placeholder="https://heyzine.com/..." required
+                            class="w-full px-4 py-3 rounded-full bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-inner">
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label class="font-bold text-gray-900 mb-2">name book :</label>
+                        <input type="text" id="inputBookName" placeholder="Majalah SMK BAKAR ARANG" required
+                            class="w-full px-4 py-3 rounded-full bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-inner">
+                    </div>
+
+                    <div class="flex flex-col md:col-span-2">
+                        <label class="font-bold text-gray-900 mb-2">muka depan book (pilih dari device PC) :</label>
+                        <input type="file" id="inputCoverFile" accept="image/*" required
+                            class="w-full px-4 py-2.5 rounded-full bg-white text-gray-800 border border-gray-300 cursor-pointer file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white">
+                    </div>
+
+                    <div class="flex items-end justify-end md:col-span-2">
+                        <button type="submit" class="px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-full shadow-lg transition active:scale-95">
+                            submitted
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Data Table Status -->
+            <div class="w-full card-bg rounded-3xl p-6 shadow-xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg text-gray-900">
+                        <i class="fa-solid fa-sync fa-spin text-orange-600 mr-2"></i> Real-time Sync Google Sheets (10s)
+                    </h3>
+                    <span id="syncStatusTag" class="text-xs bg-emerald-200 text-emerald-900 font-bold px-3 py-1 rounded-full">Diselaras</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm bg-white rounded-xl overflow-hidden shadow">
+                        <thead class="bg-gray-800 text-white uppercase text-xs">
+                            <tr>
+                                <th class="p-3">Nama Pelajar</th>
+                                <th class="p-3">Emel DELIMa</th>
+                                <th class="p-3">Status Pembayaran</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentDataTable" class="divide-y divide-gray-200 font-medium text-gray-800">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 transition transform translate-y-20 opacity-0 duration-300 z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toastMessage" class="font-medium text-sm">Action completed</span>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // LIVE GOOGLE APPS SCRIPT WEB APP URL
+        let GOOGLE_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyPfcAO3wcBgwMyW6S7bnZF4i4w6xPmW-Bg_BHMdMukKBj4kYbhobbnCJH8hgrMQvI9/exec";
+
+        // Pangkalan data tempatan diselaraskan mengikut Google Sheets baharu
+        let studentDatabase = [
+            { nama: "MUHAMMAD ZAQWAN AMRI BIN MOHD SHAUFIK", email: "m-12115765@moe-dl.edu.my", status: "selesai", password: null },
+            { nama: "NUR NASRULLAH BINTI FAIZAL", email: "m-12345678@moe-dl.edu.my", status: "selesai", password: null },
+            { nama: "MUHAMMAD FAIZAL RAZAK BIN SALAH ORG", email: "m-09876543@moe-dl.edu.my", status: "belum", password: null }
+        ];
+
+        let currentBook = {
+            name: "E-Majalah Bakar Arang 2026",
+            heyzineLink: "", 
+            coverImg: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80"
+        };
+
+        let currentUser = null;
+        let currentMode = 'user';
+        let authSubMode = 'login';
+
+        window.onload = function() {
+            renderStudentTable();
+            updateBookDisplays();
+            fetchDataFromGoogleSheets();
+            setInterval(autoSyncGoogleSheets, 10000);
+        };
+
+        async function fetchDataFromGoogleSheets() {
+            if (!GOOGLE_SCRIPT_WEB_APP_URL) return;
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_WEB_APP_URL);
+                const data = await response.json();
+                if (data.status === "success" && Array.isArray(data.students) && data.students.length > 0) {
+                    studentDatabase = data.students;
+                    renderStudentTable();
+                }
+            } catch (err) {
+                console.log("Sync error:", err);
+            }
+        }
+
+        function autoSyncGoogleSheets() {
+            const syncTag = document.getElementById('syncStatusTag');
+            if (syncTag) {
+                syncTag.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-orange-600 mr-1"></i> Menyemak...`;
+                fetchDataFromGoogleSheets().then(() => {
+                    syncTag.innerHTML = `Diselaras`;
+                });
+            }
+        }
+
+        function switchAuthSubMode(subMode) {
+            authSubMode = subMode;
+            const subTabLogin = document.getElementById('subTabLogin');
+            const subTabRegister = document.getElementById('subTabRegister');
+            const confirmGroup = document.getElementById('confirmPasswordGroup');
+            const confirmInput = document.getElementById('confirmPasswordInput');
+            const authBtn = document.getElementById('authSubmitBtn');
+            const loginTitle = document.getElementById('loginTitle');
+
+            if (subMode === 'register') {
+                subTabRegister.className = "text-orange-600 underline";
+                subTabLogin.className = "text-gray-600 hover:text-orange-600";
+                confirmGroup.classList.remove('hidden');
+                confirmInput.required = true;
+                authBtn.innerText = "DAFTAR AKAUN";
+                loginTitle.innerText = "PENDAFTARAN PELAJAR";
+            } else {
+                subTabLogin.className = "text-orange-600 underline";
+                subTabRegister.className = "text-gray-600 hover:text-orange-600";
+                confirmGroup.classList.add('hidden');
+                confirmInput.required = false;
+                authBtn.innerText = "LOG MASUK";
+                loginTitle.innerText = "LOG MASUK PELAJAR";
+            }
+            document.getElementById('loginMessage').classList.add('hidden');
+        }
+
+        function switchLoginMode(mode) {
+            currentMode = mode;
+            const tabUser = document.getElementById('tabUser');
+            const tabAdmin = document.getElementById('tabAdmin');
+            const loginTitle = document.getElementById('loginTitle');
+            const usernameInput = document.getElementById('usernameInput');
+            const inputIcon = document.getElementById('inputIcon');
+            const studentAuthToggle = document.getElementById('studentAuthToggle');
+
+            if (mode === 'admin') {
+                tabAdmin.className = "w-1/2 py-2 font-bold text-sm rounded-lg bg-white text-gray-900 shadow";
+                tabUser.className = "w-1/2 py-2 font-bold text-sm rounded-lg text-gray-600 hover:text-gray-900";
+                loginTitle.innerText = "LOG MASUK ADMIN";
+                usernameInput.placeholder = "admin";
+                inputIcon.className = "fa-solid fa-user-shield";
+                studentAuthToggle.classList.add('hidden');
+                document.getElementById('confirmPasswordGroup').classList.add('hidden');
+                document.getElementById('authSubmitBtn').innerText = "LOG MASUK";
+            } else {
+                tabUser.className = "w-1/2 py-2 font-bold text-sm rounded-lg bg-white text-gray-900 shadow";
+                tabAdmin.className = "w-1/2 py-2 font-bold text-sm rounded-lg text-gray-600 hover:text-gray-900";
+                usernameInput.placeholder = "m-12345678@moe-dl.edu.my";
+                inputIcon.className = "fa-solid fa-envelope";
+                studentAuthToggle.classList.remove('hidden');
+                switchAuthSubMode('login');
+            }
+        }
+
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInput').value.trim();
+            const confirmPassword = document.getElementById('confirmPasswordInput').value.trim();
+            document.getElementById('loginMessage').classList.add('hidden');
+
+            // --- LOG MASUK ADMIN ---
+            if (currentMode === 'admin') {
+                if (username === 'admin' && password === 'kea@3117') {
+                    currentUser = { name: "Administrator", role: "admin" };
+                    showScreen('adminScreen');
+                    document.getElementById('adminNameDisplay').innerText = currentUser.name;
+                    document.getElementById('logoutBtn').classList.remove('hidden');
+                    showToast("Log masuk Admin berjaya!", "success");
+                } else {
+                    showLoginError("Username atau kata laluan Admin salah!");
+                }
+                return;
+            }
+
+            // --- PELAJAR (REGISTER / LOGIN) ---
+            let student = studentDatabase.find(s => s.email.toLowerCase() === username.toLowerCase());
+
+            // Semak ke Google Apps Script secara langsung jika tidak jumpa dalam data tempatan
+            if (!student && GOOGLE_SCRIPT_WEB_APP_URL) {
+                try {
+                    const res = await fetch(GOOGLE_SCRIPT_WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'checkEmail', email: username })
+                    });
+                    const result = await res.json();
+                    if (result.found) {
+                        student = {
+                            nama: result.nama,
+                            email: result.email,
+                            status: result.status,
+                            hasPassword: result.hasPassword
+                        };
+                    }
+                } catch (err) {
+                    console.log("Check error:", err);
+                }
+            }
+
+            if (!student) {
+                showLoginError("Account not found");
+                showToast("Account not found", "error");
+                return;
+            }
+
+            if (authSubMode === 'register') {
+                showToast(`Emel dijumpai (${student.nama})! Sila bina kata laluan.`, "info");
+
+                if (student.hasPassword || student.password) {
+                    showLoginError("Emel ini telah berdaftar! Sila log masuk.");
+                    return;
+                }
+
+                if (password.length < 4) {
+                    showLoginError("Kata laluan minima 4 aksara!");
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    showLoginError("Kata laluan pengesahan tidak sepadan!");
+                    return;
+                }
+
+                // Hantar ke Google Apps Script backend untuk disimpan
+                if (GOOGLE_SCRIPT_WEB_APP_URL) {
+                    try {
+                        await fetch(GOOGLE_SCRIPT_WEB_APP_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                action: 'registerPassword',
+                                email: username,
+                                password: password
+                            })
+                        });
+                    } catch (err) {
+                        console.log("Register error:", err);
+                    }
+                }
+
+                student.password = password;
+                student.hasPassword = true;
+                showToast(`Pendaftaran ${student.nama} berjaya! Sila Log Masuk.`, "success");
+                switchAuthSubMode('login');
+                document.getElementById('passwordInput').value = '';
+                renderStudentTable();
+            } else {
+                if (!student.hasPassword && !student.password) {
+                    showLoginError("Sila daftar kata laluan terlebih dahulu.");
+                    showToast("Sila 'Daftar Akaun Baru' dahulu.", "info");
+                    return;
+                }
+
+                // Pengesahan log masuk ke Google Apps Script backend
+                if (GOOGLE_SCRIPT_WEB_APP_URL) {
+                    try {
+                        const res = await fetch(GOOGLE_SCRIPT_WEB_APP_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                action: 'login',
+                                email: username,
+                                password: password
+                            })
+                        });
+                        const resData = await res.json();
+                        if (resData.status !== "success") {
+                            showLoginError(resData.message || "Kata laluan salah!");
+                            return;
+                        }
+                    } catch (err) {
+                        console.log("Login sync error:", err);
+                    }
+                } else if (student.password !== password) {
+                    showLoginError("Kata laluan salah!");
+                    return;
+                }
+
+                currentUser = { ...student, role: "student" };
+                document.getElementById('logoutBtn').classList.remove('hidden');
+
+                if (student.status === 'selesai') {
+                    document.getElementById('userNameDisplay').innerText = student.nama;
+                    showScreen('userSuccessScreen');
+                    showToast(`Selamat datang, ${student.nama}!`, "success");
+                } else {
+                    showScreen('userUnpaidScreen');
+                    document.getElementById('unpaidBookName').innerText = currentBook.name;
+                    showToast("Status pembayaran anda belum selesai.", "error");
+                }
+            }
+        }
+
+        function showLoginError(msg) {
+            const loginMsg = document.getElementById('loginMessage');
+            loginMsg.innerText = msg;
+            loginMsg.className = "mt-4 text-center text-sm font-bold text-red-600 bg-red-100 p-2 rounded-xl w-full";
+            loginMsg.classList.remove('hidden');
+        }
+
+        function handleAddBook(e) {
+            e.preventDefault();
+            const link = document.getElementById('inputHeyzineLink').value.trim();
+            const name = document.getElementById('inputBookName').value.trim();
+            const fileInput = document.getElementById('inputCoverFile');
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    currentBook = {
+                        name: name,
+                        heyzineLink: link,
+                        coverImg: evt.target.result
+                    };
+                    updateBookDisplays();
+                    showToast("Buku berjaya dikemaskini!", "success");
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+
+            document.getElementById('inputHeyzineLink').value = '';
+            document.getElementById('inputBookName').value = '';
+            fileInput.value = '';
+        }
+
+        function updateBookDisplays() {
+            document.getElementById('bookNameDisplay').innerText = currentBook.name;
+            document.getElementById('unpaidBookName').innerText = currentBook.name;
+            document.getElementById('readingBookTitle').innerText = currentBook.name;
+
+            if (currentBook.coverImg) {
+                document.getElementById('bookCoverImg').src = currentBook.coverImg;
+                document.getElementById('bookCoverText').innerText = currentBook.name;
+            }
+        }
+
+        function openReaderScreen() {
+            showScreen('readerScreen');
+            const frame = document.getElementById('heyzineFrame');
+            const placeholder = document.getElementById('readerPlaceholder');
+
+            if (currentBook.heyzineLink && currentBook.heyzineLink.includes('http')) {
+                frame.src = currentBook.heyzineLink;
+                frame.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                frame.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+        }
+
+        function backToUserHome() {
+            showScreen('userSuccessScreen');
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            document.getElementById('usernameInput').value = '';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('logoutBtn').classList.add('hidden');
+            showScreen('loginScreen');
+            showToast("Anda telah log keluar.", "info");
+        }
+
+        function showScreen(screenId) {
+            const screens = ['loginScreen', 'userSuccessScreen', 'userUnpaidScreen', 'readerScreen', 'adminScreen'];
+            screens.forEach(id => {
+                const el = document.getElementById(id);
+                if (id === screenId) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+        }
+
+        function renderStudentTable() {
+            const tbody = document.getElementById('studentDataTable');
+            tbody.innerHTML = '';
+
+            studentDatabase.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 border-b border-gray-200";
+                
+                const statusBadge = s.status === 'selesai' 
+                    ? `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-bold">SELESAI</span>`
+                    : `<span class="bg-red-100 text-red-800 text-xs px-2.5 py-1 rounded-full font-bold">BELUM</span>`;
+
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold">${s.nama}</td>
+                    <td class="p-3 text-gray-600 font-mono text-xs">${s.email}</td>
+                    <td class="p-3">${statusBadge}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMessage.innerText = message;
+
+            if (type === 'error') {
+                toastIcon.className = "fa-solid fa-circle-xmark text-red-400 text-lg";
+            } else if (type === 'info') {
+                toastIcon.className = "fa-solid fa-circle-info text-sky-400 text-lg";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
